@@ -2,11 +2,9 @@
   <div class="row no-gutters">
     <div class="col-sm-4 p-0">
       <div class="toolbox">
-        <div class="sticky-top bg-white shadow-sm p-2">
+        <div class="sticky-top shadow-sm p-2">
           <div class="form-group d-flex">
-            <label for="county" class="mx-2 col-form-label text-right"
-              >縣市</label
-            >
+            <label for="county" class="mx-2 col-form-label text-right">縣市</label>
             <div class="flex-fill">
               <select
                 @change="getCountyData"
@@ -63,10 +61,7 @@
             <div class="address-wrap">
               <i class="fas fa-map-marker-alt"></i>
               <p class="d-inline m-3">
-                <a
-                  target="_blank"
-                  :href="`https://www.google.com.tw/maps/place/${item.properties.address}`"
-                >
+                <a target="_blank" :href="`https://www.google.com.tw/maps/place/${item.properties.address}`">
                   {{ item.properties.address }}
                 </a>
               </p>
@@ -84,25 +79,11 @@
               </p>
             </div>
             <div
-              class="
-                d-flex
-                flex-lg-row flex-md-column
-                justify-content-around
-                align-items-center
-                mt-2
-                text-center
-              "
-            >
-              <p
-                style="width: 150px"
-                class="mb-0 p-2 bg-success text-light rounded-2"
-              >
+              class="d-flex flex-lg-row flex-md-column justify-content-around align-items-center mt-2 text-center">
+              <p style="width: 150px" class="mb-0 p-2 text-light rounded-2">
                 成人口罩：{{ item.properties.mask_adult }}
               </p>
-              <p
-                style="width: 150px"
-                class="mb-0 mt-lg-0 mt-md-2 p-2 bg-primary text-light rounded-2"
-              >
+              <p style="width: 150px" class="mb-0 mt-lg-0 mt-md-2 p-2 text-light rounded-2">
                 兒童口罩：{{ item.properties.mask_child }}
               </p>
             </div>
@@ -118,6 +99,7 @@
 <script>
 import { computed, ref, onMounted, inject } from "vue";
 import L from "leaflet";
+import 'leaflet/dist/leaflet.css';
 
 let osmMap = {};
 const osm = {
