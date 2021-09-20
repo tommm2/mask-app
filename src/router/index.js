@@ -4,8 +4,9 @@ const routes = [
   {
     name: 'Index',
     path: '/',
-    component: () => import('/@/components/Index.vue'),
-  }
+    component: () => import('/@/views/Index.vue'),
+  },
+
 ]
 
 const router = createRouter({

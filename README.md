@@ -1,6 +1,12 @@
-# Vue 3 + Vite
+# Vue 3 + leaflet 練習
 
-This template should help get you started developing with Vue 3 in Vite. The template uses Vue 3 `<script setup>` SFCs, check out the [script setup docs](https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup) to learn more.
+簡介：
+* 練習使用 口罩 API 搭配 leaflet，
+
+功能：
+* 過濾縣市及地區資料
+* 點選後地圖會有標記點，並跑出彈跳視窗
+* 地址連結可移至 goole 地圖
 
 ## Recommended IDE Setup
 

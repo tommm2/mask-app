@@ -1,98 +1,89 @@
 <template>
-  <div class="row no-gutters">
-    <div class="col-sm-4 p-0">
-      <div class="toolbox">
-        <div class="sticky-top shadow-sm p-2">
-          <div class="form-group d-flex">
-            <label for="county" class="mx-2 col-form-label text-right">縣市</label>
-            <div class="flex-fill">
-              <select
-                @change="getCountyData"
-                id="county"
-                class="form-select"
-                v-model="countyName"
-              >
-                <option selected disabled value="">-- 請選擇縣市 --</option>
-                <option
-                  v-for="(item, index) in county"
-                  :key="index"
-                  :value="item"
-                >
-                  {{ item }}
-                </option>
-              </select>
-            </div>
-          </div>
-          <div class="form-group mt-2 d-flex">
-            <label for="area" class="mx-2 col-form-label text-right"
-              >地區</label
-            >
-            <div class="flex-fill">
-              <select
-                @change="getTownData"
-                id="area"
-                class="form-select"
-                v-model="townName"
-              >
-                <option selected disabled value="">-- 請選擇地區 --</option>
-                <option
-                  v-for="(item, index) in town"
-                  :key="index"
-                  :value="item"
-                >
-                  {{ item }}
-                </option>
-              </select>
-            </div>
-          </div>
-          <p class="mb-0 mt-2 small text-muted text-center">
-            請先選擇區域查看（綠色表示還有口罩）
-          </p>
-        </div>
-        <ul class="list-group">
-          <li
-            class="list-group-item text-left p-md-4"
-            :class="{}"
-            v-for="(item, index) in displayList"
-            :key="index"
-            @click="penTo(item)"
+  <div class="grid grid-cols-12 h-screen">
+    <div class="col-span-12 sm:col-span-5 xl:col-span-3 bg-gray-500 overflow-auto
+    scrollbar scrollbar-weigth 
+    scrollbar-thumb-gray-700 
+    scrollbar-track-gray-400
+    scrollbar-thumb-rounded-md">
+      <div class="sticky top-0 shadow-lg p-6 bg-gray-100">
+        <div class="flex items-center">
+          <label for="county" class="mr-3">縣市</label>
+          <select
+            @change="getCountyData"
+            id="county"
+            class="
+              shadow-sm
+              w-10/12 p-1.5
+              rounded-md
+              focus:outline-none focus:ring-4 focus:ring-blue-200
+              transition ease-out"
+            v-model="countyName"
           >
-            <h4>{{ item.properties.name }}</h4>
-            <div class="address-wrap">
-              <i class="fas fa-map-marker-alt"></i>
-              <p class="d-inline m-3">
-                <a target="_blank" :href="`https://www.google.com.tw/maps/place/${item.properties.address}`">
-                  {{ item.properties.address }}
-                </a>
-              </p>
-            </div>
-            <div class="phone-wrap">
-              <i class="fas fa-phone-alt"></i>
-              <p class="d-inline m-2">
-                {{ item.properties.phone }}
-              </p>
-            </div>
-            <div class="time-wrap">
-              <i class="fas fa-clock"></i>
-              <p class="d-inline m-2">
-                {{ item.properties.note }}
-              </p>
-            </div>
-            <div
-              class="d-flex flex-lg-row flex-md-column justify-content-around align-items-center mt-2 text-center">
-              <p style="width: 150px" class="mb-0 p-2 text-light rounded-2">
-                成人口罩：{{ item.properties.mask_adult }}
-              </p>
-              <p style="width: 150px" class="mb-0 mt-lg-0 mt-md-2 p-2 text-light rounded-2">
-                兒童口罩：{{ item.properties.mask_child }}
-              </p>
-            </div>
-          </li>
-        </ul>
+            <option selected disabled value="">-- 請選擇縣市 --</option>
+            <option v-for="(item, index) in county" :key="index" :value="item">
+              {{ item }}
+            </option>
+          </select>
+        </div>
+        <div class="flex items-center mt-3">
+          <label for="area" class="mr-3">地區</label>
+          <select
+            @change="getTownData"
+            id="area"
+            class="
+              shadow-sm
+              w-10/12 p-1.5 rounded-md
+              focus:outline-none focus:ring-4 focus:ring-blue-200
+              transition ease-out"
+            v-model="townName"
+          >
+            <option selected disabled value="">-- 請選擇地區 --</option>
+            <option v-for="(item, index) in town" :key="index" :value="item">
+              {{ item }}
+            </option>
+          </select>
+        </div>
+        <p class="mt-6 text-gray-500 text-right text-sm">
+          選擇區域查看(點擊列表可移至醫院標記點)
+        </p>
       </div>
+      <ul class="text-gray-100">
+        <li @click="penTo(item)"
+          class="shadow-md p-6 space-y-4 cursor-pointer hover:bg-gray-800 transition" 
+          v-for="(item, index) in displayList" :key="index">
+          <h3 class="text-lg bg-blue-500 inline p-1.5 rounded-sm">{{ item.properties.name }}</h3>
+          <div>
+            <i class="fas fa-map-marker-alt"></i>
+            <span class="ml-2 underline hover:text-blue-500 transition">
+              <a target="_blank" 
+                :href="`https://www.google.com.tw/maps/place/${item.properties.address}`"
+              >
+                {{ item.properties.address }}
+              </a>
+            </span>
+          </div>
+          <div>
+            <i class="fas fa-phone-alt"></i>
+            <span class="ml-2">{{ item.properties.phone }}</span>
+          </div>
+          <div>
+            <i class="fas fa-clock"></i>
+            <span class="ml-2" :title="item.properties.note">
+              {{ item.properties.note }}
+            </span>
+          </div>
+          <div class="flex flex-col xl:flex-row justify-around mt-3 text-center space-y-3 xl:space-y-0">
+            <span class="bg-gray-600 p-2 rounded-md shadow-sm text-gray-100">
+              成人口罩<strong class="px-1 text-lg text-blue-500">{{ item.properties.mask_adult }}</strong>個
+            </span>
+            <span class="bg-gray-600 p-2 rounded-md shadow-sm text-gray-100">
+              小孩口罩<strong class="px-1 text-lg text-blue-500">{{ item.properties.mask_child }}</strong>個
+            </span>
+          </div>
+        </li>
+      </ul>
     </div>
-    <div class="col-sm-8 p-0">
-      <div id="map"></div>
+    <div id="map" class="hidden sm:block sm:col-span-7 xl:col-span-9">
     </div>
   </div>
 </template>
@@ -182,7 +173,7 @@ export default {
       });
       penTo(townData.value[0]);
     };
-    // 地圖移動到點擊的藥局
+    // 地圖移動到點擊的藥局標記點
     const penTo = (item) => {
       const { geometry, properties } = item;
       osmMap.panTo([geometry.coordinates[1], geometry.coordinates[0]]);
@@ -231,26 +222,4 @@ export default {
 };
 </script>
 <style lang="scss" scoped>
-@import "bootstrap/scss/bootstrap";
-
-#map {
-  height: 100vh;
-}
-
-.highlight {
-  background: #e9ffe3;
-}
-
-.toolbox {
-  height: 100vh;
-  overflow-y: auto;
-  li {
-    cursor: pointer;
-  }
-  p {
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow:ellipsis;
-  }
-}
 </style>

@@ -10,7 +10,6 @@
     "@fortawesome/fontawesome-free": "^5.15.4",
     "@popperjs/core": "^2.10.1",
     "axios": "^0.21.4",
-    "bootstrap": "^5.1.1",
     "leaflet": "^1.7.1",
     "vue": "^3.2.6",
     "vue-axios": "^3.3.7",
@@ -20,11 +19,15 @@
   "devDependencies": {
     "@vitejs/plugin-vue": "^1.6.1",
     "@vue/compiler-sfc": "^3.2.6",
+    "autoprefixer": "^10.3.4",
     "eslint": "^7.2.0",
     "eslint-config-airbnb-base": "^14.2.1",
     "eslint-plugin-import": "^2.22.1",
     "eslint-plugin-vue": "^7.18.0",
+    "postcss": "^8.3.6",
     "sass": "^1.41.1",
+    "tailwind-scrollbar": "^1.3.1",
+    "tailwindcss": "^2.2.15",
     "vite": "^2.5.4"
   }
 }

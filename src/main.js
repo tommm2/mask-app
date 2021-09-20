@@ -6,6 +6,7 @@ import VueAxios from 'vue-axios'
 import axios from 'axios'
 import 'bootstrap'
 import '@fortawesome/fontawesome-free/css/all.css'
+import '../index.css'
 
 const app = createApp(App)
 app.use(router)
