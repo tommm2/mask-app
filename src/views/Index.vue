@@ -1,25 +1,14 @@
 <template>
   <div class="grid grid-cols-12 h-screen">
-      <div class="col-span-12 sm:col-span-5 
-        xl:col-span-3 bg-gray-500 overflow-auto
-        scrollbar scrollbar-weigth 
-        scrollbar-thumb-gray-700 
-        scrollbar-track-gray-400
-        scrollbar-thumb-rounded-md"
+    <div class="col-span-12 sm:col-span-5 xl:col-span-3 
+      bg-gray-500 overflow-auto scroll"
       >
       <div class="sticky top-0 shadow-lg p-6 bg-gray-100">
         <div class="flex items-center">
           <label for="county" class="mr-3">縣市</label>
           <select
-            @change="getCountyData"
-            id="county"
-            class="
-              shadow-sm
-              w-10/12 p-1.5
-              rounded-md
-              focus:outline-none focus:ring-4 focus:ring-blue-200
-              transition ease-out"
-            v-model="countyName"
+           @change="getCountyData" id="county"
+            class="select" v-model="countyName"
           >
             <option selected disabled value="">-- 請選擇縣市 --</option>
             <option v-for="(item, index) in county" :key="index" :value="item">
@@ -30,14 +19,8 @@
         <div class="flex items-center mt-3">
           <label for="area" class="mr-3">地區</label>
           <select
-            @change="getTownData"
-            id="area"
-            class="
-              shadow-sm
-              w-10/12 p-1.5 rounded-md
-              focus:outline-none focus:ring-4 focus:ring-blue-200
-              transition ease-out"
-            v-model="townName"
+            @change="getTownData" id="area"
+            class="select" v-model="townName"
           >
             <option selected disabled value="">-- 請選擇地區 --</option>
             <option v-for="(item, index) in town" :key="index" :value="item">
@@ -51,7 +34,7 @@
       </div>
       <ul class="text-gray-100">
         <li @click="penTo(item)"
-          class="shadow-md p-6 space-y-4 cursor-pointer hover:bg-gray-800 transition" 
+          class="list" 
           v-for="(item, index) in displayList" :key="index">
           <h3 class="text-lg bg-blue-500 inline p-1.5 rounded-sm">{{ item.properties.name }}</h3>
           <div>
@@ -75,11 +58,15 @@
             </span>
           </div>
           <div class="flex flex-col xl:flex-row justify-around mt-3 text-center space-y-3 xl:space-y-0">
-            <span class="bg-gray-600 p-2 rounded-md shadow-sm text-gray-100">
-              成人口罩<strong class="px-1 text-lg text-blue-500">{{ item.properties.mask_adult }}</strong>個
+            <span class="mask-wrap text-md sm:text-sm">
+              成人口罩
+              <strong class="px-1 text-lg text-blue-500">{{ item.properties.mask_adult }}</strong>
+              個
             </span>
-            <span class="bg-gray-600 p-2 rounded-md shadow-sm text-gray-100">
-              小孩口罩<strong class="px-1 text-lg text-blue-500">{{ item.properties.mask_child }}</strong>個
+            <span class="mask-wrap text-md sm:text-sm">
+              小孩口罩
+              <strong class="px-1 text-lg text-blue-500">{{ item.properties.mask_child }}</strong>
+              個
             </span>
           </div>
         </li>
@@ -94,7 +81,54 @@ import { computed, ref, onMounted, inject } from "vue";
 import L from "leaflet";
 
 let osmMap = {};
+// marker 設定
+const myIconSettings = {
+  iconSize: [25, 40],
+  iconAnchor: [12, 41],
+  popupAnchor: [1, -34],
+  shadowSize: [41, 41],
+};
+const myIcon = {
+  gray: new L.Icon({
+    iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-blue.png',
+    ...myIconSettings,
+  })
+}
 const osm = {
+  // 創建地圖
+  createOsmMap() {
+    osmMap = L.map("map", {
+      center: [25.03, 121.55],
+      zoom: 15,
+    });
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      attribution:
+        '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+      maxZoom: 18,
+    }).addTo(osmMap);
+  },
+  // 新增藥局標記點及綁定顯示的彈跳視窗
+  addMapMarker(geometry, properties) {
+    const icon = myIcon.gray;
+    L.marker([geometry.coordinates[1], geometry.coordinates[0]], { icon })
+      .addTo(osmMap)
+      .bindPopup(
+        `
+        <h5>${properties.name}</h5>
+        口罩剩餘數量: 
+        <strong>
+          成人: ${properties.mask_adult} / 小孩: ${properties.mask_child}
+        </strong>
+        <br>
+        地址: <a target="_blank" href="https://www.google.com.tw/maps/place/${properties.address}">${properties.address}</a>
+        <br>
+        電話: ${properties.phone}
+        <br>
+        <small>最後更新時間: ${properties.updated}</small>
+      `
+      )
+      .openPopup();
+  },
   removeMapMarker() {
     osmMap.eachLayer((layer) => {
       if (layer instanceof L.Marker) {
@@ -112,39 +146,6 @@ export default {
     const countyData = ref([]);
     const townName = ref("");
     const townData = ref([]);
-    // 創建地圖
-    const createOsmMap = () => {
-      osmMap = L.map("map", {
-        center: [25.03, 121.55],
-        zoom: 15,
-      });
-      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-        attribution:
-          '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-        maxZoom: 18,
-      }).addTo(osmMap);
-    };
-    // 新增藥局標記點及綁定顯示的彈跳視窗
-    const createMarker = (geometry, properties) => {
-      L.marker([geometry.coordinates[1], geometry.coordinates[0]])
-        .addTo(osmMap)
-        .bindPopup(
-          `
-          <h5>${properties.name}</h5>
-          口罩剩餘數量: 
-          <strong>
-            成人: ${properties.mask_adult} / 小孩: ${properties.mask_child}
-          </strong>
-          <br>
-          地址: <a target="_blank" href="https://www.google.com.tw/maps/place/${properties.address}">${properties.address}</a>
-          <br>
-          電話: ${properties.phone}
-          <br>
-          <small>最後更新時間: ${properties.updated}</small>
-        `
-        )
-        .openPopup();
-    };
     // 接取遠端資料
     const getJsonData = () => {
       const url =
@@ -170,7 +171,7 @@ export default {
       });
       townData.value.forEach((item) => {
         const { geometry, properties } = item;
-        createMarker(geometry, properties);
+        osm.addMapMarker(geometry, properties);
       });
       penTo(townData.value[0]);
     };
@@ -178,7 +179,7 @@ export default {
     const penTo = (item) => {
       const { geometry, properties } = item;
       osmMap.panTo([geometry.coordinates[1], geometry.coordinates[0]]);
-      createMarker(geometry, properties);
+      osm.addMapMarker(geometry, properties);
     };
     // 過濾縣市名字
     const county = computed(() => {
@@ -207,7 +208,7 @@ export default {
     });
     onMounted(() => {
       getJsonData();
-      createOsmMap();
+      osm.createOsmMap();
     });
     return {
       countyName,
@@ -222,5 +223,23 @@ export default {
   },
 };
 </script>
-<style lang="scss" scoped>
+<style scoped>
+.select {
+  @apply shadow-sm w-10/12 p-1.5 rounded-md 
+  focus:outline-none focus:ring-4 focus:ring-blue-200 transition ease-out;
+}
+
+.list {
+  @apply shadow-md p-6 space-y-4 cursor-pointer hover:bg-gray-800 transition;
+}
+
+.mask-wrap {
+  @apply bg-gray-600 p-2 rounded-md shadow-sm text-gray-100;
+}
+
+.scroll {
+  @apply scrollbar scrollbar-thumb-gray-700 
+  scrollbar-track-gray-400
+  scrollbar-thumb-rounded-md;
+}
 </style>
