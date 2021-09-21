@@ -1,10 +1,12 @@
 <template>
   <div class="grid grid-cols-12 h-screen">
-    <div class="col-span-12 sm:col-span-5 xl:col-span-3 bg-gray-500 overflow-auto
-    scrollbar scrollbar-weigth 
-    scrollbar-thumb-gray-700 
-    scrollbar-track-gray-400
-    scrollbar-thumb-rounded-md">
+      <div class="col-span-12 sm:col-span-5 
+        xl:col-span-3 bg-gray-500 overflow-auto
+        scrollbar scrollbar-weigth 
+        scrollbar-thumb-gray-700 
+        scrollbar-track-gray-400
+        scrollbar-thumb-rounded-md"
+      >
       <div class="sticky top-0 shadow-lg p-6 bg-gray-100">
         <div class="flex items-center">
           <label for="county" class="mr-3">縣市</label>
@@ -90,7 +92,6 @@
 <script>
 import { computed, ref, onMounted, inject } from "vue";
 import L from "leaflet";
-import 'leaflet/dist/leaflet.css';
 
 let osmMap = {};
 const osm = {

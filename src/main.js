@@ -4,6 +4,7 @@ import router from '/@/router'
 import store from '/@/store'
 import VueAxios from 'vue-axios'
 import axios from 'axios'
+import 'leaflet/dist/leaflet.css';
 import '@fortawesome/fontawesome-free/css/all.css'
 import '../index.css'
 
