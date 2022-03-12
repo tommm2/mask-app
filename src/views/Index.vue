@@ -1,14 +1,16 @@
 <template>
-  <div class="grid grid-cols-12 h-screen">
-    <div class="col-span-12 sm:col-span-5 xl:col-span-3 
-      bg-gray-500 overflow-auto scroll"
-      >
-      <div class="sticky top-0 shadow-lg p-6 bg-gray-100">
+  <div class="grid h-screen grid-cols-12">
+    <div
+      class="scroll col-span-12 overflow-auto bg-gray-500 sm:col-span-5 xl:col-span-3"
+    >
+      <div class="sticky top-0 bg-gray-100 p-6 shadow-lg">
         <div class="flex items-center">
           <label for="county" class="mr-3">縣市</label>
           <select
-           @change="getCountyData" id="county"
-            class="select" v-model="countyName"
+            id="county"
+            v-model="countyName"
+            class="select"
+            @change="getCountyData"
           >
             <option selected disabled value="">-- 請選擇縣市 --</option>
             <option v-for="(item, index) in county" :key="index" :value="item">
@@ -16,11 +18,13 @@
             </option>
           </select>
         </div>
-        <div class="flex items-center mt-3">
+        <div class="mt-3 flex items-center">
           <label for="area" class="mr-3">地區</label>
           <select
-            @change="getTownData" id="area"
-            class="select" v-model="townName"
+            id="area"
+            v-model="townName"
+            class="select"
+            @change="getTownData"
           >
             <option selected disabled value="">-- 請選擇地區 --</option>
             <option v-for="(item, index) in town" :key="index" :value="item">
@@ -28,19 +32,25 @@
             </option>
           </select>
         </div>
-        <p class="mt-6 text-gray-500 text-right text-sm">
+        <p class="mt-6 text-right text-sm text-gray-500">
           選擇區域查看(點擊列表可移至醫院標記點)
         </p>
       </div>
       <ul class="text-gray-100">
-        <li @click="penTo(item)"
-          class="list" 
-          v-for="(item, index) in displayList" :key="index">
-          <h3 class="text-lg bg-blue-500 inline p-1.5 rounded-sm">{{ item.properties.name }}</h3>
+        <li
+          v-for="(item, index) in displayList"
+          :key="index"
+          class="list"
+          @click="penTo(item)"
+        >
+          <h3 class="inline rounded-sm bg-blue-500 p-1.5 text-lg">
+            {{ item.properties.name }}
+          </h3>
           <div>
             <i class="fas fa-map-marker-alt"></i>
-            <span class="ml-2 underline hover:text-blue-500 transition">
-              <a target="_blank" 
+            <span class="ml-2 underline transition hover:text-blue-500">
+              <a
+                target="_blank"
                 :href="`https://www.google.com.tw/maps/place/${item.properties.address}`"
               >
                 {{ item.properties.address }}
@@ -57,26 +67,31 @@
               {{ item.properties.note }}
             </span>
           </div>
-          <div class="flex flex-col xl:flex-row justify-around mt-3 text-center space-y-3 xl:space-y-0">
+          <div
+            class="mt-3 flex flex-col justify-around space-y-3 text-center xl:flex-row xl:space-y-0"
+          >
             <span class="mask-wrap text-md sm:text-sm">
               成人口罩
-              <strong class="px-1 text-lg text-blue-500">{{ item.properties.mask_adult }}</strong>
+              <strong class="px-1 text-lg text-blue-500">{{
+                item.properties.mask_adult
+              }}</strong>
               個
             </span>
             <span class="mask-wrap text-md sm:text-sm">
               小孩口罩
-              <strong class="px-1 text-lg text-blue-500">{{ item.properties.mask_child }}</strong>
+              <strong class="px-1 text-lg text-blue-500">{{
+                item.properties.mask_child
+              }}</strong>
               個
             </span>
           </div>
         </li>
       </ul>
     </div>
-    <div id="map" class="hidden sm:block sm:col-span-7 xl:col-span-9">
-    </div>
+    <div id="map" class="hidden sm:col-span-7 sm:block xl:col-span-9"></div>
   </div>
 </template>
-<script>
+<script setup>
 import { computed, ref, onMounted, inject } from "vue";
 import L from "leaflet";
 
@@ -90,10 +105,11 @@ const myIconSettings = {
 };
 const myIcon = {
   gray: new L.Icon({
-    iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-blue.png',
+    iconUrl:
+      "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-blue.png",
     ...myIconSettings,
-  })
-}
+  }),
+};
 const osm = {
   // 創建地圖
   createOsmMap() {
@@ -137,109 +153,104 @@ const osm = {
     });
   },
 };
-export default {
-  name: 'Index',
-  setup() {
-    const axios = inject("axios");
-    const data = ref([]);
-    const countyName = ref("");
-    const countyData = ref([]);
-    const townName = ref("");
-    const townData = ref([]);
-    // 接取遠端資料
-    const getJsonData = () => {
-      const url =
-        "https://raw.githubusercontent.com/kiang/pharmacies/master/json/points.json";
-      axios.get(url).then((res) => {
-        data.value = res.data.features;
-      });
-    };
-    // 取得縣市資料
-    const getCountyData = () => {
-      osm.removeMapMarker();
-      countyData.value = data.value.filter((item) => {
-        return item.properties.county === countyName.value;
-      });
-      penTo(countyData.value[0]);
-      townName.value = "";
-    };
-    // 取得地區資料
-    const getTownData = () => {
-      osm.removeMapMarker();
-      townData.value = countyData.value.filter((item) => {
-        return item.properties.town === townName.value;
-      });
-      townData.value.forEach((item) => {
-        const { geometry, properties } = item;
-        osm.addMapMarker(geometry, properties);
-      });
-      penTo(townData.value[0]);
-    };
-    // 地圖移動到點擊的藥局標記點
-    const penTo = (item) => {
-      const { geometry, properties } = item;
-      osmMap.panTo([geometry.coordinates[1], geometry.coordinates[0]]);
-      osm.addMapMarker(geometry, properties);
-    };
-    // 過濾縣市名字
-    const county = computed(() => {
-      const arr = [];
-      data.value.forEach((item) => {
-        arr.push(item.properties.county);
-      });
-      return arr.filter((item, index) => arr.indexOf(item) === index);
-    });
-    // 過濾地區名字
-    const town = computed(() => {
-      const arr = [];
-      countyData.value.forEach((item) => {
-        arr.push(item.properties.town);
-      });
-      return arr.filter((item, index) => arr.indexOf(item) === index);
-    });
-    // 最終呈現在左側 list 上的資料
-    const displayList = computed(() => {
-      if (countyName.value !== "") {
-        if (townName.value !== "") {
-          return townData.value;
-        }
-        return countyData.value;
-      }
-    });
-    onMounted(() => {
-      getJsonData();
-      osm.createOsmMap();
-    });
-    return {
-      countyName,
-      townName,
-      county,
-      town,
-      getCountyData,
-      getTownData,
-      displayList,
-      penTo,
-    };
-  },
+
+const axios = inject("axios");
+const data = ref([]);
+const countyName = ref("");
+const countyData = ref([]);
+const townName = ref("");
+const townData = ref([]);
+
+// 接取遠端資料
+const getJsonData = () => {
+  const url =
+    "https://raw.githubusercontent.com/kiang/pharmacies/master/json/points.json";
+  axios.get(url).then((res) => {
+    data.value = res.data.features;
+  });
 };
+
+// 取得縣市資料
+const getCountyData = () => {
+  osm.removeMapMarker();
+  countyData.value = data.value.filter((item) => {
+    return item.properties.county === countyName.value;
+  });
+  penTo(countyData.value[0]);
+  townName.value = "";
+};
+
+// 取得地區資料
+const getTownData = () => {
+  osm.removeMapMarker();
+  townData.value = countyData.value.filter((item) => {
+    return item.properties.town === townName.value;
+  });
+  townData.value.forEach((item) => {
+    const { geometry, properties } = item;
+    osm.addMapMarker(geometry, properties);
+  });
+  penTo(townData.value[0]);
+};
+
+// 地圖移動到點擊的藥局標記點
+const penTo = (item) => {
+  const { geometry, properties } = item;
+  osmMap.panTo([geometry.coordinates[1], geometry.coordinates[0]]);
+  osm.addMapMarker(geometry, properties);
+};
+
+// 過濾縣市名字
+const county = computed(() => {
+  const arr = [];
+  data.value.forEach((item) => {
+    arr.push(item.properties.county);
+  });
+  return arr.filter((item, index) => arr.indexOf(item) === index);
+});
+
+// 過濾地區名字
+const town = computed(() => {
+  const arr = [];
+  countyData.value.forEach((item) => {
+    arr.push(item.properties.town);
+  });
+  return arr.filter((item, index) => arr.indexOf(item) === index);
+});
+
+// 最終呈現在左側 list 上的資料
+const displayList = computed(() => {
+  if (countyName.value !== "") {
+    if (townName.value !== "") {
+      return townData.value;
+    }
+    return countyData.value;
+  }
+  return false;
+});
+
+onMounted(() => {
+  getJsonData();
+  osm.createOsmMap();
+});
 </script>
 <style scoped>
 .select {
-  @apply shadow-sm w-10/12 p-1.5 rounded-md 
-  focus:outline-none focus:ring-4 focus:ring-blue-200 transition ease-out;
+  @apply focus:outline-none w-10/12 rounded-md p-1.5 
+  shadow-sm transition ease-out focus:ring-4 focus:ring-blue-200;
 }
 
 .list {
-  @apply shadow-md p-6 space-y-4 cursor-pointer hover:bg-gray-800 transition;
+  @apply cursor-pointer space-y-4 p-6 shadow-md transition hover:bg-gray-800;
 }
 
 .mask-wrap {
-  @apply bg-gray-600 p-2 rounded-md shadow-sm text-gray-100;
+  @apply rounded-md bg-gray-600 p-2 text-gray-100 shadow-sm;
 }
 
 .scroll {
-  @apply scrollbar scrollbar-thumb-gray-700 
+  @apply scrollbar-thumb-rounded-md scrollbar 
   scrollbar-track-gray-400
-  scrollbar-thumb-rounded-md;
+  scrollbar-thumb-gray-700;
 }
 </style>

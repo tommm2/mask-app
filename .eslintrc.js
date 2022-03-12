@@ -1,19 +1,10 @@
 module.exports = {
-  extends: ["plugin:vue/vue3-essential", "airbnb-base"],
-  parserOptions: {
-    ecmaVersion: 2020,
-    sourceType: "module",
+  env: {
+    node: true,
   },
-  plugins: ["vue"],
+  extends: ["eslint:recommended", "plugin:vue/vue3-recommended", "prettier"],
   rules: {
-    //自己写一些想配置的规则
+    // override/add rules settings here, such as:
+    // 'vue/no-unused-vars': 'error'
   },
-  overrides: [
-    {
-      files: ["*.vue"],
-      rules: {
-        //这里写覆盖vue文件的规则
-      },
-    },
-  ],
 };
